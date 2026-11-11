@@ -17,6 +17,22 @@ Dado um arquivo `times.csv` (os 10 times do campeonato) e um arquivo
    defesa, maior goleada).
 5. **Grava** `classificacao.csv` com a mesma ordem da tela.
 
+## Assuntos abordados
+
+- **TAD (Tipo Abstrato de Dados)** e tipo opaco: interface no `.h`,
+  implementação no `.c`, encapsulamento.
+- **Lista simplesmente encadeada** (MatchList) e **lista duplamente
+  encadeada com cauda** (TeamList).
+- **Posse de memória (ownership)**: lista dona vs. lista visão, e a ordem
+  correta de liberação.
+- **Invariantes por construção**: saldo e pontos derivados, nunca armazenados.
+- **Inserção ordenada** (O(n²)) com comparador em cascata
+  (PG → V → saldo → GM → menor ID).
+- **Complexidade** (Big-O) das operações.
+- **Makefile** com dependências de header e separação de build/execução.
+- **Sanitizadores** (ASan/UBSan) e `valgrind` para verificação de memória.
+- **Manipulação de UTF-8** no alinhamento de saída.
+
 ## Como compilar e rodar
 
 ```bash
