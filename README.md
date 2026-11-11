@@ -31,7 +31,7 @@ Requisitos: `gcc` com suporte a C99 e `make`.
 
 - `times.csv` — lista dos times (`id,nome`), 10 times.
 - `partidas.csv` — partidas disputadas (`id,time1,time2,gols1,gols2`).
-- 
+  
 ## Saída
 
 - Tabela classificada impressa no terminal.
