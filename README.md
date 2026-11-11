@@ -30,7 +30,6 @@ Dado um arquivo `times.csv` (os 10 times do campeonato) e um arquivo
   (PG → V → saldo → GM → menor ID).
 - **Complexidade** (Big-O) das operações.
 - **Makefile** com dependências de header e separação de build/execução.
-- **Sanitizadores** (ASan/UBSan) e `valgrind` para verificação de memória.
 - **Manipulação de UTF-8** no alinhamento de saída.
 
 ## Como compilar e rodar
