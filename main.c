@@ -30,13 +30,13 @@ static int utf8_continuation_bytes(const char *s) {
 TeamList * openTimes(){
      // 1. Abre o arquivo de times para leitura em modo texto ("rt").
     FILE *f = fopen("times.csv", "rt");
-    if (f == NULL) return 1;   // arquivo não encontrado -> erro
+    if (f == NULL) return NULL;   // arquivo não encontrado -> erro
 
     // 2. Cria uma lista vazia para guardar os times.
     TeamList *tl = tl_create();
     if (tl == NULL) {
         fclose(f);
-        return 1;              // sem memória -> erro
+        return NULL;              // sem memória -> erro
     }
 
     // 3. Lê linha por linha: id + nome.
@@ -65,12 +65,12 @@ TeamList * openTimes(){
 MatchList* openPartidas(){
      // 1. Abre o arquivo de Partidas para leitura em modo texto ("rt").
     FILE *f = fopen("partidas.csv", "rt");
-    if (f == NULL) return 1;   // arquivo não encontrado -> erro
+    if (f == NULL) return NULL;   // arquivo não encontrado -> erro
 
     MatchList *ml = ml_create();
     if (ml == NULL) {
         fclose(f);
-        return 1;              // sem memória -> erro
+        return NULL;              // sem memória -> erro
     }
 
     int id;
@@ -104,7 +104,7 @@ void apurarCampeonato(TeamList *tl , MatchList *ml){
         
         // Obtém os IDs dos times
         int id1 = match_get_team1(m);
-        int id2 = match_get_goals_team2(m);
+        int id2 = match_get_team2(m);
 
         // Obtém os gols de cada time
         int gols1 = match_get_goals_team1(m);
@@ -114,7 +114,7 @@ void apurarCampeonato(TeamList *tl , MatchList *ml){
         Team *t1 = NULL;
         Team *t2 = NULL;
         
-        for(int j = 0; j > tl_size(tl); j++){
+        for(int j = 0; j < tl_size(tl); j++){
             Team *t = tl_get(tl, j);
 
 
@@ -170,7 +170,7 @@ TeamList *classificarTimes(TeamList *tl){
     ele compara com um time da lista de classificados até encontrar 
     em qual posição da lista de classificados ele deve ficar.*/
 
-    for(int i = 0; i < tl_size(tl) - 1; i++){
+    for(int i = 0; i < tl_size(tl); i++){
         Team *atual = tl_get(tl, i);
         
         int j = 0;
@@ -276,14 +276,25 @@ Match * maiorGoleada(MatchList *ml){
     return m;
 }
 
+Team *buscarTimePorID(TeamList *tl, int id){
 
+    for(int i = 0; i < tl_size(tl); i++){
+        Team *t = tl_get(tl, i);
+
+        if(team_get_id(t) == id){
+            return t;
+        }
+    }
+
+    return NULL;
+}
 int main(void) {
 
     TeamList *tl = openTimes();
     MatchList *ml = openPartidas();
     apurarCampeonato(tl,ml);
     TeamList *timesOrdenados = classificarTimes(tl);
-    imprimirArquivo(timesOrdenados);
+    imprimirArquivos(timesOrdenados);
 
     // Imprime a tabela
     printf("%-4s %-3s %-12s %2s %2s %2s %3s %3s %3s %3s\n",
@@ -315,27 +326,31 @@ int main(void) {
     printf("Partidas disputadas: %d de 45", ml_size(ml));
 
     if(ml_size(ml) != 45){
-        printf("Líder: %-15s (%d pontos)",tl_get(timesOrdenados,0), team_get_points(tl_get(timesOrdenados,0)));
+        printf("Líder: %-15s (%d pontos)",team_get_name(tl_get(timesOrdenados, 0)), team_get_points(tl_get(timesOrdenados,0)));
     }
     else{
-        printf("Campeão: %-15s (%d pontos)",tl_get(timesOrdenados,0), team_get_points(tl_get(timesOrdenados,0)));
+        printf("Campeão: %-15s (%d pontos)",team_get_name(tl_get(timesOrdenados, 0)), team_get_points(tl_get(timesOrdenados,0)));
     }
 
     Team *tma = melhorAtaque(timesOrdenados); // identifica qual é o time com o melhor ataque 
     printf("Melhor ataque: %-15s (%d gols marcados)", team_get_name(tma),team_get_goals_scored(tma));    
     
     Team *tmd = melhorDefesa(timesOrdenados); // identifica qual é o time com a melhor defesa
-    printf("Melhor defesa: %-15s (%d gols sofridos)"), team_get_name(tmd),team_get_goals_conceded(tmd);
+    printf("Melhor defesa: %-15s (%d gols sofridos)", team_get_name(tmd),team_get_goals_conceded(tmd));
     
-    Match * mmg = maiorGoleada(ml); //identifica qual é o time com a maior goleada
-    printf("Maior goleada: %-15s %d x %d %-15s", team_get_name(match_get_team1(ml)),match_get_goals_team1(ml), match_get_goals_team2(ml), team_get_name(match_get_team2(ml)));   
+    Match *mmg = maiorGoleada(ml);
+    Team *goleadaT1 = buscarTimePorID(timesOrdenados, match_get_team1(mmg));
+    Team *goleadaT2 = buscarTimePorID(timesOrdenados, match_get_team2(mmg));
+
+printf("Maior goleada: %-15s %d x %d %-15s\n",
+       team_get_name(goleadaT1),
+       match_get_goals_team1(mmg),
+       match_get_goals_team2(mmg),
+       team_get_name(goleadaT2));
 
     // lIBERAR OS TIMES E A PARTIDA RESERVADAS DO RESULTADO DA ANÁLISE DO CAMPEONATO
-    team_free(tma);
-    team_free(tmd);
-    match_free(mmg);  
-
-    }
+    
+    
 
     //  Libera a lista.
     liberarMemoria(tl, timesOrdenados, ml);
