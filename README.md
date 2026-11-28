@@ -98,5 +98,5 @@ Trabalho de Programação - Fechando o Campeonato/
 
 ## Autores
 
-- Arthur Corrêa Sobrinho
-- Caio Lucas da Silva Nascimento
+- Arthur Corrêa Sobrinho 20252BSI0046
+- Caio Lucas da Silva Nascimento 20252BSI0070
