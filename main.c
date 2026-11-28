@@ -326,7 +326,9 @@ int main(void) {
 
     printf("Partidas disputadas: 0 de 45\n");
     printf("Nenhuma partida foi disputada.\n");
-
+    liberarMemoria(tl, timesOrdenados, ml); 
+    return 0;
+        
     } else {
 
     printf("Partidas disputadas: %d de 45\n", ml_size(ml));
