@@ -32,6 +32,35 @@ Dado um arquivo `times.csv` (os 10 times do campeonato) e um arquivo
 - **Makefile** com dependências de header e separação de build/execução.
 - **Manipulação de UTF-8** no alinhamento de saída.
 
+## Principais TADs
+
+- **Team** (`team.h`/`team.c`): representa um time. Guarda id, nome e as
+  estatísticas (V, E, D, GM, GS). Saldo e pontos são calculados, nunca
+  armazenados. Possui `team_register_result`, que decide sozinha se a
+  partida foi vitória, empate ou derrota.
+- **TeamList** (`teamlist.h`/`teamlist.c`): coleção de times implementada
+  com lista duplamente encadeada (com ponteiro para o último nó). Possui
+  `tl_insert`, usado para manter a tabela ordenada.
+- **Match** (`match.h`/`match.c`): representa uma partida, com os 5 campos
+  do `partidas.csv`. Guarda IDs dos times (não ponteiros).
+- **MatchList** (`matchlist.h`/`matchlist.c`): coleção de partidas
+  implementada com lista simplesmente encadeada, preservando a ordem do
+  arquivo.
+
+## Decisões de implementação
+
+- **Posse de memória:** a lista carregada do CSV é "dona" dos times
+  (`tl_free`); a tabela de classificação é uma "visão" que reusa os mesmos
+  ponteiros (`tl_free_nodes`). Isso evita *double free*.
+- **Saldo e pontos são derivados**, nunca armazenados, para não ficarem
+  inconsistentes.
+- **Classificação por inserção ordenada** (sem `qsort`), conforme sugerido
+  no enunciado, com comparador em cascata: PG → V → saldo → GM → menor ID.
+- **Partida guarda IDs, não ponteiros**, por ser um registro histórico.
+- **Maior goleada em empate:** vale a primeira partida do arquivo (a
+  `MatchList` preserva a ordem de leitura).
+- **Melhor ataque/defesa em empate:** vale o time mais bem classificado.
+
 ## Como compilar e rodar
 
 ```bash
@@ -52,6 +81,20 @@ Requisitos: `gcc` com suporte a C99 e `make`.
 - Tabela classificada impressa no terminal.
 - Resumo do campeonato.
 - Arquivo `classificacao.csv` gerado na mesma pasta.
+
+## Estrutura do projeto
+
+```
+Trabalho de Programação - Fechando o Campeonato/
+├── main.c            # carga, apuração, classificação, relatório
+├── team.c / team.h   # TAD Team
+├── teamlist.c / .h   # TAD TeamList (lista duplamente encadeada)
+├── match.c / match.h # TAD Match
+├── matchlist.c / .h  # TAD MatchList (lista simplesmente encadeada)
+├── Makefile
+├── times.csv
+└── README.md
+```
 
 ## Autores
 
