@@ -49,11 +49,11 @@ Dado um arquivo `times.csv` (os 10 times do campeonato) e um arquivo
 
 ## Decisões de implementação
 
-- **Posse de memória:** a lista carregada do CSV é "dona" dos times
-  (`tl_free`); a tabela de classificação é uma "visão" que reusa os mesmos
-  ponteiros (`tl_free_nodes`). Isso evita *double free*.
-- **Saldo e pontos são derivados**, nunca armazenados, para não ficarem
-  inconsistentes.
+- **Posse de memória.** A lista carregada do CSV é a *dona* dos
+  times: ela os libera no fim com `tl_free`. A tabela de classificação
+  reusa os mesmos `Team*` em outra ordem e libera só a
+  estrutura com `tl_free_nodes`. Usar `tl_free` causa *double
+  free*. A regra está documentada em `teamlist.h`, onde o erro ocorre.
 - **Classificação por inserção ordenada** (sem `qsort`), conforme sugerido
   no enunciado, com comparador em cascata: PG → V → saldo → GM → menor ID.
 - **Partida guarda IDs, não ponteiros**, por ser um registro histórico.
