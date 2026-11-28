@@ -291,9 +291,12 @@ Team *buscarTimePorID(TeamList *tl, int id){
 int main(void) {
 
     TeamList *tl = openTimes();
+    if (tl == NULL) return 1;
     MatchList *ml = openPartidas();
+    if (ml == NULL) { tl_free(tl); return 1; }
     apurarCampeonato(tl,ml);
     TeamList *timesOrdenados = classificarTimes(tl);
+    if (timesOrdenados == NULL) { liberarMemoria(tl, NULL, ml); return 1; }
     imprimirArquivos(timesOrdenados);
 
     // Imprime a tabela
@@ -311,42 +314,48 @@ int main(void) {
         int points = team_get_points(t);
         
 
-        printf("%-4d %-3d %-12s %2d %2d %2d %3d %3d %3d %3d\n",i+1, team_get_id(t),team_get_name(t),victory,draws,loss,gScored,gConceded,saldoG,points);
+        printf("%-4d %-3d %-12s", i+1, team_get_id(t), team_get_name(t));
+        for (int j = 0; j < utf8_continuation_bytes(team_get_name(t)); j++)
+            putchar(' ');
+        printf(" %2d %2d %2d %3d %3d %3d %3d\n", victory, draws, loss, gScored, gConceded, saldoG, points);
     }
-    printf("===== Resumo do campeonato =====");
+    printf("===== Resumo do campeonato =====\n");
 
     
     if(ml_size(ml) == 0){ // E se nenhuma partida tiver sido disputada?
 
-    printf("Partidas disputadas: 0\n");
+    printf("Partidas disputadas: 0 de 45\n");
     printf("Nenhuma partida foi disputada.\n");
 
     } else {
 
-    printf("Partidas disputadas: %d de 45", ml_size(ml));
+    printf("Partidas disputadas: %d de 45\n", ml_size(ml));
 
     if(ml_size(ml) != 45){
-        printf("Líder: %-15s (%d pontos)",team_get_name(tl_get(timesOrdenados, 0)), team_get_points(tl_get(timesOrdenados,0)));
+        printf("Líder: %-15s (%d pontos)\n",team_get_name(tl_get(timesOrdenados, 0)), team_get_points(tl_get(timesOrdenados,0)));
     }
     else{
-        printf("Campeão: %-15s (%d pontos)",team_get_name(tl_get(timesOrdenados, 0)), team_get_points(tl_get(timesOrdenados,0)));
+        printf("Campeão: %-15s (%d pontos)\n",team_get_name(tl_get(timesOrdenados, 0)), team_get_points(tl_get(timesOrdenados,0)));
     }
 
     Team *tma = melhorAtaque(timesOrdenados); // identifica qual é o time com o melhor ataque 
-    printf("Melhor ataque: %-15s (%d gols marcados)", team_get_name(tma),team_get_goals_scored(tma));    
+    printf("Melhor ataque: %-15s (%d gols marcados)\n", team_get_name(tma),team_get_goals_scored(tma));    
     
     Team *tmd = melhorDefesa(timesOrdenados); // identifica qual é o time com a melhor defesa
-    printf("Melhor defesa: %-15s (%d gols sofridos)", team_get_name(tmd),team_get_goals_conceded(tmd));
+    printf("Melhor defesa: %-15s (%d gols sofridos)\n", team_get_name(tmd),team_get_goals_conceded(tmd));
     
     Match *mmg = maiorGoleada(ml);
-    Team *goleadaT1 = buscarTimePorID(timesOrdenados, match_get_team1(mmg));
-    Team *goleadaT2 = buscarTimePorID(timesOrdenados, match_get_team2(mmg));
-
-printf("Maior goleada: %-15s %d x %d %-15s\n",
-       team_get_name(goleadaT1),
-       match_get_goals_team1(mmg),
-       match_get_goals_team2(mmg),
-       team_get_name(goleadaT2));
+    if (mmg != NULL) {
+        Team *goleadaT1 = buscarTimePorID(timesOrdenados, match_get_team1(mmg));
+        Team *goleadaT2 = buscarTimePorID(timesOrdenados, match_get_team2(mmg));
+        if (goleadaT1 != NULL && goleadaT2 != NULL) {
+            printf("Maior goleada: %-15s %d x %d %-15s\n",
+                   team_get_name(goleadaT1),
+                   match_get_goals_team1(mmg),
+                   match_get_goals_team2(mmg),
+                   team_get_name(goleadaT2));
+        }
+    }
 
     // lIBERAR OS TIMES E A PARTIDA RESERVADAS DO RESULTADO DA ANÁLISE DO CAMPEONATO
     
@@ -354,5 +363,6 @@ printf("Maior goleada: %-15s %d x %d %-15s\n",
 
     //  Libera a lista.
     liberarMemoria(tl, timesOrdenados, ml);
-    return 0;  
+    return 0;
+    }
 }
